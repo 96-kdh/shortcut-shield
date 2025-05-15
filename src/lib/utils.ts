@@ -2,7 +2,7 @@ import { type ClassValue, clsx } from "clsx";
 import React from "react";
 import { twMerge } from "tailwind-merge";
 
-import { isValidKey } from "@/hooks/useCommand.ts";
+import { isValidKey } from "@/hooks/useCommand.DoNothing.ts";
 import { ModifierKey } from "@/types";
 
 export function cn(...inputs: ClassValue[]) {

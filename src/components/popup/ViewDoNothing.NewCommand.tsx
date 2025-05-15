@@ -6,7 +6,7 @@ import { Button, Input, Tooltip, TooltipContent, TooltipProvider, TooltipTrigger
 import { injectionMissingClassName } from "@/constant";
 import { PopupView } from "@/contexts/popup.provider.tsx";
 import { usePopup } from "@/hooks/contexts/usePopup.ts";
-import useCommand, { isValidUrl } from "@/hooks/useCommand.ts";
+import useCommandDoNothing, { isValidUrl } from "@/hooks/useCommand.DoNothing.ts";
 import useValidationClass from "@/hooks/useValidationClass.ts";
 import { detectModifierKey, detectTriggerKey } from "@/lib/utils.ts";
 import { type CommandType, ModifierKey } from "@/types";
@@ -23,7 +23,7 @@ const CommandInput = ({
    setTriggerKey: React.Dispatch<React.SetStateAction<string>>;
    value: CommandType;
 }) => {
-   const { commands, formatDisplay } = useCommand();
+   const { commands, formatDisplay } = useCommandDoNothing();
    const { currentViewProps } = usePopup();
    const { mark, clear } = useValidationClass(injectionMissingClassName);
 
@@ -197,7 +197,7 @@ const UrlInput = ({ urls, setUrls }: { urls: string[]; setUrls: React.Dispatch<R
 };
 
 const ViewDoNothingNewCommand: React.FC = () => {
-   const { commands, updateCommand } = useCommand();
+   const { commands, updateCommand } = useCommandDoNothing();
    const { setCurrentView, currentViewProps } = usePopup();
    const { mark } = useValidationClass(injectionMissingClassName);
 

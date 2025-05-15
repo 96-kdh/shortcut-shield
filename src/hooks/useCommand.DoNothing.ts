@@ -33,11 +33,11 @@ const useCommandUtils = () => {
    return { formatDisplay };
 };
 
-const useCommand = () => {
+const useCommandDoNothing = () => {
    const [commands, _setCommand] = useState<CommandRules>(new Map());
 
    const _save = async (value: CommandRules) => {
-      await browser.storage.sync.set({ rulesMap: commandToRaw(value) });
+      await browser.storage.sync.set({ doNothingRulesMap: commandToRaw(value) });
       _setCommand(new Map(value));
    };
 
@@ -72,8 +72,8 @@ const useCommand = () => {
 
    // load
    useEffect(() => {
-      browser.storage.sync.get("rulesMap").then((res: { rulesMap?: RawCommandRules }) => {
-         _setCommand(rawToCommand(res.rulesMap));
+      browser.storage.sync.get("doNothingRulesMap").then((res: { doNothingRulesMap?: RawCommandRules }) => {
+         _setCommand(rawToCommand(res.doNothingRulesMap));
       });
    }, []);
 
@@ -127,4 +127,4 @@ export function isValidUrl(urlStr: string): boolean {
    }
 }
 
-export default useCommand;
+export default useCommandDoNothing;

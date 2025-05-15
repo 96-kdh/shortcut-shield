@@ -9,8 +9,8 @@
     "96": "icon-96.png",
     "128": "icon-128.png"
   },
-  "description": "특정 페이지에서 cmd+S 단축키 차단",
-  "permissions": ["storage", "commands"],
+  "description": "특정 페이지에서 단축키 차단",
+  "permissions": ["storage", "commands", "scripting", "tabs", "debugger"],
   "host_permissions": ["<all_urls>"],
   "action": {
     "default_popup": "src/popup.html"
@@ -22,6 +22,9 @@
       "run_at": "document_start"
     }
   ],
+  "background": {
+    "service_worker": "src/background.ts"
+  },
   "commands": {
     "do-nothing0": { "description": "Do nothing" },
     "do-nothing1": { "description": "Do nothing" },

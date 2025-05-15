@@ -17,10 +17,10 @@ import {
 } from "@/components/ui";
 import { PopupView } from "@/contexts/popup.provider.tsx";
 import { usePopup } from "@/hooks/contexts/usePopup.ts";
-import useCommand from "@/hooks/useCommand.ts";
+import useCommandDoNothing from "@/hooks/useCommand.DoNothing.ts";
 
 const TabContentsDoNothing = () => {
-   const { commands, delCommand, setActive, formatDisplay } = useCommand();
+   const { commands, delCommand, setActive, formatDisplay } = useCommandDoNothing();
    const { setCurrentView } = usePopup();
 
    return (

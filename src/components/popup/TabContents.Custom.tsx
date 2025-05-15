@@ -1,27 +1,91 @@
+import { Settings, Trash } from "lucide-react";
 import React from "react";
 
-import { Button, Switch } from "@/components/ui";
+import {
+   AlertDialog,
+   AlertDialogAction,
+   AlertDialogCancel,
+   AlertDialogContent,
+   AlertDialogDescription,
+   AlertDialogFooter,
+   AlertDialogHeader,
+   AlertDialogTitle,
+   AlertDialogTrigger,
+   Button,
+   Input,
+   Switch,
+} from "@/components/ui";
+import { PopupView } from "@/contexts/popup.provider.tsx";
+import { usePopup } from "@/hooks/contexts/usePopup.ts";
+import useCustomCommand from "@/hooks/useCommand.Custom.ts";
+import useCommandDoNothing from "@/hooks/useCommand.DoNothing.ts";
 
 const TabContentsCustom = () => {
-   const commands = ["Turn off lights", "Play rain sounds"];
+   const { formatDisplay } = useCommandDoNothing();
+   const { customCommands, setCustomActive, deleteCustomCommand } = useCustomCommand();
+   const { setCurrentView } = usePopup();
 
    return (
       <>
          <div className="space-y-4 flex-1 min-h-80 h-full overflow-y-scroll py-4">
             <div className="space-y-4">
-               {commands.map((cmd) => (
-                  <div key={cmd} className="flex items-center justify-between p-4 bg-gray-100 rounded-lg">
+               {Array.from(customCommands.entries()).map(([cmd, rule]) => (
+                  <div
+                     key={cmd}
+                     className="flex items-center justify-between p-4 bg-gray-100 dark:bg-sidebar-accent rounded-lg shadow-md"
+                  >
                      <div>
-                        <p className="font-medium">{cmd}</p>
-                        <p className="text-sm text-gray-500">When I say '{cmd.toLowerCase()}'</p>
+                        <Input
+                           className="font-medium text-center max-w-24 cursor-default"
+                           value={formatDisplay(cmd)}
+                           readOnly
+                        />
                      </div>
-                     <Switch />
+
+                     <div className="flex items-center justify-between gap-1">
+                        <Switch
+                           checked={rule.isActive}
+                           className="cursor-pointer data-[state=checked]:bg-brandColor"
+                           onClick={() => setCustomActive(cmd, !rule.isActive)}
+                        />
+
+                        <div
+                           className="p-1 cursor-pointer shadow:lg text-accent-foreground hover:text-brandColor"
+                           onClick={() => setCurrentView(PopupView.DoNothingNewCommand, { command: cmd })}
+                        >
+                           <Settings className="w-4 h-4" />
+                        </div>
+                        <AlertDialog>
+                           <AlertDialogTrigger>
+                              <div className="p-1 cursor-pointer shadow:lg text-accent-foreground hover:text-brandColor">
+                                 <Trash className="w-4 h-4" />
+                              </div>
+                           </AlertDialogTrigger>
+                           <AlertDialogContent>
+                              <AlertDialogHeader>
+                                 <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                                 <AlertDialogDescription>
+                                    This action cannot be undone. This will delete all internal URLs.
+                                 </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                 <AlertDialogCancel className="cursor-pointer">Cancel</AlertDialogCancel>
+                                 <AlertDialogAction className="cursor-pointer" onClick={() => deleteCustomCommand(cmd)}>
+                                    Continue
+                                 </AlertDialogAction>
+                              </AlertDialogFooter>
+                           </AlertDialogContent>
+                        </AlertDialog>
+                     </div>
                   </div>
                ))}
             </div>
          </div>
-         <Button className="w-full py-3 bg-brandColor hover:bg-yellow-500 text-black font-bold cursor-pointer">
-            Add New Command
+         <Button
+            onClick={() => setCurrentView(PopupView.CustomNewCommand)}
+            className="w-full py-3 bg-brandColor hover:bg-yellow-500 text-black font-bold cursor-pointer"
+         >
+            Add New Custom Command
          </Button>
       </>
    );

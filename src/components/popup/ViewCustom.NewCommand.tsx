@@ -1,33 +1,95 @@
-import { X } from "lucide-react";
-import React from "react";
+import { javascript } from "@codemirror/lang-javascript";
+import { EditorState, StateEffect } from "@codemirror/state";
+import { oneDark } from "@codemirror/theme-one-dark";
+import { EditorView, basicSetup } from "codemirror";
+import React, { useEffect, useRef, useState } from "react";
+import { toast } from "sonner";
+import browser from "webextension-polyfill";
 
-import { Button, Textarea } from "@/components/ui";
+import { useTheme } from "@/hooks/contexts/useTheme.ts";
 
 const ViewCustomNewCommand: React.FC = () => {
+   const { theme } = useTheme();
+   console.log("load ViewCustomNewCommand");
+
+   const ref = useRef<HTMLDivElement>(null);
+   const [view, setView] = useState<EditorView>();
+   const [isTS, setIsTS] = useState(false);
+   const [isDark, setIsDark] = useState(false);
+
+   useEffect(() => {
+      if (!ref.current) return;
+
+      const state = EditorState.create({
+         doc: "// Your code…",
+         extensions: [basicSetup, javascript({ typescript: isTS })],
+      });
+
+      const v = new EditorView({ state, parent: ref.current });
+      setView(v);
+      return () => v.destroy();
+   }, []);
+
+   // 언어/테마 토글 시 재구성
+   const reconfigure = () => {
+      if (!view) return;
+
+      const extensions = [basicSetup, javascript({ typescript: isTS })];
+
+      if (isDark) extensions.push(oneDark);
+
+      view.dispatch({
+         effects: StateEffect.reconfigure.of(extensions),
+      });
+   };
+
    return (
-      <div className="max-w-md mx-auto p-6 space-y-8 bg-white rounded-lg shadow">
-         <header className="flex items-center justify-between">
-            <button aria-label="Close">
-               <X className="w-6 h-6 text-gray-500" />
+      <div>
+         <div className="flex space-x-2 mb-2">
+            <button
+               onClick={() => {
+                  setIsTS((f) => !f);
+                  reconfigure();
+               }}
+            >
+               {isTS ? "Switch to JS" : "Switch to TS"}
             </button>
-            <h1 className="text-lg font-semibold">New Web Command</h1>
-            <div className="w-6" /> {/* Placeholder for centering */}
-         </header>
+            <button
+               onClick={() => {
+                  setIsDark((f) => !f);
+                  reconfigure();
+               }}
+            >
+               {isDark ? "Light Theme" : "Dark Theme"}
+            </button>
+            <button
+               onClick={async () => {
+                  if (!view) return;
 
-         <div className="space-y-6">
-            <div>
-               <label className="block text-sm font-medium text-gray-700">Command</label>
-               <Textarea placeholder="Type '/' to start" className="mt-1 h-12" />
-            </div>
+                  const code = view.state.doc.toString();
 
-            <div>
-               <label className="block text-sm font-medium text-gray-700">URL</label>
-               <Textarea placeholder="https://www.google.com" className="mt-1 h-24" />
-            </div>
+                  try {
+                     const res: { status: 200 | 400 | 500; exceptionDetails: { name: string; description: string } } =
+                        await browser.runtime.sendMessage({
+                           type: "DEBUG_RUN",
+                           code,
+                        });
+                     console.log(res);
+
+                     if (res.status !== 200) {
+                        toast.warning(res.exceptionDetails.description);
+                     }
+                  } catch (err) {
+                     console.log("Error running code:", err);
+                  }
+               }}
+            >
+               Run ▶
+            </button>
          </div>
-
-         <Button className="w-full py-3 bg-yellow-400 hover:bg-yellow-500 text-black font-medium">Add Command</Button>
+         <div ref={ref} className="h-64 border" />
       </div>
    );
 };
+
 export default ViewCustomNewCommand;
