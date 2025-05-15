@@ -1,11 +1,11 @@
 import React from "react";
 
 import Header from "@/components/Header.tsx";
-import TapContentsCustom from "@/components/popup/TabContents.Custom.tsx";
-import TabContentsDoNothing from "@/components/popup/TabContents.DoNothing.tsx";
-import TabTrigger from "@/components/popup/TabTrigger.tsx";
-import ViewCustomNewCommand from "@/components/popup/ViewCustom.NewCommand.tsx";
-import ViewDoNothingNewCommand from "@/components/popup/ViewDoNothing.NewCommand.tsx";
+import ViewCustomSetCommand from "@/components/popup/View.Custom.SetCommand.tsx";
+import ViewDoNothingSetCommand from "@/components/popup/View.DoNothing.SetCommand.tsx";
+import TapContentsCustom from "@/components/popup/tabs/TabContents.Custom.tsx";
+import TabContentsDoNothing from "@/components/popup/tabs/TabContents.DoNothing.tsx";
+import TabTrigger from "@/components/popup/tabs/TabTrigger.tsx";
 import { PopupTab, PopupView } from "@/contexts/popup.provider.tsx";
 import { usePopup } from "@/hooks/contexts/usePopup.ts";
 
@@ -17,9 +17,9 @@ const Index: React.FC = () => {
          <Header />
 
          {currentView === PopupView.DoNothingNewCommand ? (
-            <ViewDoNothingNewCommand />
+            <ViewDoNothingSetCommand />
          ) : currentView === PopupView.CustomNewCommand ? (
-            <ViewCustomNewCommand />
+            <ViewCustomSetCommand />
          ) : (
             <>
                <TabTrigger />

@@ -1,4 +1,5 @@
 import { createContext, useEffect, useState } from "react";
+import browser from "webextension-polyfill";
 
 type Theme = "dark" | "light" | "system";
 
@@ -26,16 +27,23 @@ export function ThemeProvider({
    storageKey = "vite-ui-theme",
    ...props
 }: ThemeProviderProps) {
-   const [theme, setTheme] = useState<Theme>(() => (localStorage.getItem(storageKey) as Theme) || defaultTheme);
+   const [theme, _setTheme] = useState<Theme>(defaultTheme);
+
+   // 마운트 시: chrome.storage에서 불러오기
+   useEffect(() => {
+      (async () => {
+         const res = await browser.storage.local.get(storageKey);
+         const saved = res[storageKey] as Theme | undefined;
+         _setTheme(saved ?? defaultTheme);
+      })();
+   }, [defaultTheme, storageKey]);
 
    useEffect(() => {
       const root = window.document.documentElement;
-
       root.classList.remove("light", "dark");
 
       if (theme === "system") {
          const systemTheme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
-
          root.classList.add(systemTheme);
          return;
       }
@@ -46,8 +54,8 @@ export function ThemeProvider({
    const value = {
       theme,
       setTheme: (theme: Theme) => {
-         localStorage.setItem(storageKey, theme);
-         setTheme(theme);
+         browser.storage.local.set({ [storageKey]: theme }).catch(console.error);
+         _setTheme(theme);
       },
    };
 

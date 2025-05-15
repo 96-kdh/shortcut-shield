@@ -1,5 +1,5 @@
 // src/hooks/useCustomCommand.ts
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import browser from "webextension-polyfill";
 
 import type { CommandType } from "@/types";
@@ -51,46 +51,36 @@ export default function useCustomCommand() {
    const [customCommands, setCustomCommands] = useState<CustomRules>(new Map());
 
    // storage 업데이트 함수
-   const save = async (value: CustomRules) => {
+   const _save = async (value: CustomRules) => {
       await browser.storage.sync.set({ customRulesMap: customToRaw(value) });
       setCustomCommands(new Map(value));
    };
 
-   /**
-    * 새 Custom 로직 커맨드 추가
-    */
-   const addCustomCommand = async (cmd: CommandType, urls: string[], logic: string, isActive = true) => {
-      const next = new Map(customCommands);
-      next.set(cmd, { urls: new Set(urls.filter(Boolean)), isActive, logic });
-      await save(next);
-   };
+   const updateCustomCommand = async (_cmd: CommandType, _urls: string[], _isActive: boolean, _logic: string) => {
+      if (_cmd.split("+").length !== 2) return;
 
-   /**
-    * 기존 CustomRule 업데이트 (urls, logic, isActive 중 일부)
-    */
-   const updateCustomCommand = async (
-      cmd: CommandType,
-      opts: Partial<Omit<CustomRule, "urls">> & { urls?: string[] },
-   ) => {
-      const next = new Map(customCommands);
-      const rule = next.get(cmd);
-      if (!rule) return;
-      if (opts.urls) rule.urls = new Set(opts.urls.filter(Boolean));
-      if (typeof opts.isActive === "boolean") rule.isActive = opts.isActive;
-      if (typeof opts.logic === "string") rule.logic = opts.logic;
-      next.set(cmd, rule);
-      await save(next);
+      const newMap = new Map(customCommands);
+      const rule = { urls: new Set<string>(), isActive: _isActive, logic: _logic };
+
+      for (const _url of _urls) if (_url) rule.urls.add(_url);
+
+      newMap.set(_cmd, rule);
+      await _save(newMap);
    };
 
    const deleteCustomCommand = async (cmd: CommandType) => {
       const next = new Map(customCommands);
       next.delete(cmd);
-      await save(next);
+      await _save(next);
    };
 
    // 활성화 토글 유틸
-   const setCustomActive = async (cmd: CommandType, active: boolean) => {
-      await updateCustomCommand(cmd, { isActive: active });
+   const setCustomActive = async (_cmd: CommandType, _isActive: boolean) => {
+      const newMap = new Map(customCommands);
+      const rule = newMap.get(_cmd);
+      if (!rule) return;
+      newMap.set(_cmd, { urls: rule.urls, isActive: _isActive, logic: rule.logic });
+      await _save(newMap);
    };
 
    // 최초 로드 & 변경 감지
@@ -103,7 +93,6 @@ export default function useCustomCommand() {
 
    return {
       customCommands,
-      addCustomCommand,
       updateCustomCommand,
       deleteCustomCommand,
       setCustomActive,

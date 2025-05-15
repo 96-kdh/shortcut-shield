@@ -32,18 +32,9 @@ const Header = () => {
 
    const themes: { name: "system" | "light" | "dark"; el: string | JSX.Element }[] = useMemo(
       () => [
-         {
-            name: "system",
-            el: t("system"),
-         },
-         {
-            name: "light",
-            el: <Sun className="h-4 w-4" />,
-         },
-         {
-            name: "dark",
-            el: <Moon className="h-4 w-4" />,
-         },
+         { name: "system", el: t("system") },
+         { name: "light", el: <Sun className="h-4 w-4" /> },
+         { name: "dark", el: <Moon className="h-4 w-4" /> },
       ],
       [],
    );
@@ -65,15 +56,9 @@ const Header = () => {
          <h1 className="text-lg font-semibold text-center font-mono">{"Shortcut Shield"}</h1>
          <Popover>
             <PopoverTrigger>
-               {currentView === PopupView.Index ? (
-                  <div className="text-accent-foreground p-1 rounded-md hover:bg-gray-200 dark:hover:bg-sidebar-accent cursor-pointer">
-                     <EllipsisVertical className="w-5 h-5" />
-                  </div>
-               ) : (
-                  <div className="p-1">
-                     <div className="w-5"></div>
-                  </div>
-               )}
+               <div className="text-accent-foreground p-1 rounded-md hover:bg-gray-200 dark:hover:bg-sidebar-accent cursor-pointer">
+                  <EllipsisVertical className="w-5 h-5" />
+               </div>
             </PopoverTrigger>
             <PopoverContent align="end" className="w-64 p-4">
                <div className="space-y-6">

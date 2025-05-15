@@ -45,11 +45,10 @@ const useCommandDoNothing = () => {
       if (_cmd.split("+").length !== 2) return;
 
       const newMap = new Map(commands);
-      const rule = { urls: new Set<string>(), isActive: newMap.get(_cmd)?.isActive || _isActive };
+      const rule = { urls: new Set<string>(), isActive: _isActive };
       // const rule = newMap.get(_cmd) || { urls: new Set<string>(), isActive: _isActive };
 
       for (const _url of _urls) if (_url) rule.urls.add(_url);
-      rule.isActive = _isActive;
 
       newMap.set(_cmd, rule);
       await _save(newMap);

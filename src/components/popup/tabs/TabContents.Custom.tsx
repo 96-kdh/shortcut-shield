@@ -51,7 +51,7 @@ const TabContentsCustom = () => {
 
                         <div
                            className="p-1 cursor-pointer shadow:lg text-accent-foreground hover:text-brandColor"
-                           onClick={() => setCurrentView(PopupView.DoNothingNewCommand, { command: cmd })}
+                           onClick={() => setCurrentView(PopupView.CustomNewCommand, { command: cmd })}
                         >
                            <Settings className="w-4 h-4" />
                         </div>

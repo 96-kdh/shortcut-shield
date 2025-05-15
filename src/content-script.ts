@@ -2,11 +2,9 @@ import browser from "webextension-polyfill";
 
 import { rawToCommand } from "@/hooks/useCommand.DoNothing.ts";
 import { detectModifierKey, detectTriggerKey, matches } from "@/lib/utils.ts";
-import { type CommandRules, type CommandType, type RawCommandRules } from "@/types";
+import { type CommandType, type RawCommandRules } from "@/types";
 
 import { type RawCustomRules, rawToCustom } from "./hooks/useCommand.Custom.ts";
-
-console.log("load content-script");
 
 // Map<command, Set<url>>
 let doNothingRule = new Map();
@@ -51,13 +49,19 @@ document.addEventListener(
       if (cr && cr.isActive) {
          for (const pattern of cr.urls) {
             if (matches(pattern, href)) {
-               try {
-                  new Function("event", cr.logic)(e);
-               } catch (err) {
-                  console.error("Custom logic error", err);
-               }
                e.preventDefault();
                e.stopImmediatePropagation();
+
+               browser.runtime
+                  .sendMessage({
+                     type: "RUN_CUSTOM_LOGIC",
+                     code: cr.logic,
+                  })
+                  .then((result) => {
+                     console.log("sendMessage result: ", result);
+                  })
+                  .catch((error) => console.error("Custom logic error", error));
+
                return;
             }
          }
@@ -78,37 +82,3 @@ document.addEventListener(
    },
    { capture: true },
 );
-
-// 사용자 코드 테스트 실행
-browser.runtime.onMessage.addListener((msg, sender) => {
-   console.log(msg);
-   console.log("sender.tab?.id: ", sender.tab?.id);
-   const tabId = msg.tabId;
-   console.log("tabId: ", tabId);
-   const fc = msg.funcTest;
-   if (fc) fc();
-
-   if (msg.type === "RUN_CUSTOM_LOGIC" && typeof msg.logic === "string") {
-      try {
-         // new Function("event", msg.logic)(undefined);
-         // alert("kim");
-      } catch (err) {
-         console.error("Custom logic 실행 중 오류:", err);
-      }
-   }
-
-   // if (msg.type === "RUN_CUSTOM_LOGIC" && typeof tabId === "number") {
-   //    browser.scripting.executeScript({
-   //       world: "ISOLATED",
-   //       target: { tabId },
-   //       func: (code) => {
-   //          try {
-   //             new Function("event", code)(undefined);
-   //          } catch (err) {
-   //             console.error("페이지 컨텍스트 오류:", err);
-   //          }
-   //       },
-   //       args: [msg.logic],
-   //    });
-   // }
-});
