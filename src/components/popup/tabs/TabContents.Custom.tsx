@@ -23,7 +23,7 @@ import useCommandDoNothing from "@/hooks/useCommand.DoNothing.ts";
 const TabContentsCustom = () => {
    const { formatDisplay } = useCommandDoNothing();
    const { customCommands, setCustomActive, deleteCustomCommand } = useCustomCommand();
-   const { setCurrentView } = usePopup();
+   const { setCurrentView, currentViewProps } = usePopup();
 
    return (
       <>
@@ -51,7 +51,15 @@ const TabContentsCustom = () => {
 
                         <div
                            className="p-1 cursor-pointer shadow:lg text-accent-foreground hover:text-brandColor"
-                           onClick={() => setCurrentView(PopupView.CustomNewCommand, { command: cmd })}
+                           onClick={() =>
+                              setCurrentView(PopupView.CustomNewCommand, {
+                                 ...currentViewProps,
+                                 command: {
+                                    value: cmd,
+                                    type: "readOnly",
+                                 },
+                              })
+                           }
                         >
                            <Settings className="w-4 h-4" />
                         </div>

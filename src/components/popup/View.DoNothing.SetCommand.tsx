@@ -48,12 +48,25 @@ const ViewDoNothingSetCommand: React.FC = () => {
       setCurrentView(PopupView.Index);
    };
 
-   useEffect(() => {
-      if (!currentViewProps.command) return;
-
-      const _savedRule = commands.get(currentViewProps.command);
-      if (_savedRule?.urls) setUrls([...Array.from(_savedRule.urls), ""]);
-   }, [currentViewProps, commands]);
+   // useEffect(() => {
+   //    console.log("currentViewProps: ", currentViewProps);
+   //
+   //    let array;
+   //
+   //    if (currentViewProps.command?.value) {
+   //       const _savedRule = commands.get(currentViewProps.command.value);
+   //       if (_savedRule?.urls) {
+   //          array = Array.from(_savedRule.urls);
+   //       }
+   //    }
+   //
+   //    if (currentViewProps.urls) {
+   //       if (array) array = array.concat(currentViewProps.urls);
+   //       else array = currentViewProps.urls;
+   //    }
+   //
+   //    if (array) setUrls(array);
+   // }, [currentViewProps.command, currentViewProps.urls, commands]);
 
    return (
       <>

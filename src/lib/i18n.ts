@@ -13,7 +13,9 @@ const resources = {
       translation: {
          lang: "Language",
          en: "English",
+         "en-us": "English",
          ko: "Korean",
+         "ko-KR": "Korean",
          theme: "Theme",
          system: "System",
       },
@@ -22,7 +24,9 @@ const resources = {
       translation: {
          lang: "언어",
          en: "영어",
+         "en-us": "영어",
          ko: "한국어",
+         "ko-KR": "한국어",
          theme: "테마",
          system: "시스템",
       },

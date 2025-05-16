@@ -1,19 +1,23 @@
 import { CircleHelp, Plus, Trash } from "lucide-react";
-import React from "react";
+import React, { useEffect } from "react";
 
 import { Button, Input, Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui";
 import { injectionMissingClassName } from "@/constant";
+import { usePopup } from "@/hooks/contexts/usePopup.ts";
 import useValidationClass from "@/hooks/useValidationClass.ts";
 
 export const popupUrlInputClassName = "shortcutShieldPopupUrlInputClassName";
 
 const InputUrl = ({ urls, setUrls }: { urls: string[]; setUrls: React.Dispatch<React.SetStateAction<string[]>> }) => {
+   const { setCurrentViewProps } = usePopup();
    const { clear } = useValidationClass(injectionMissingClassName);
 
    const handleUrlChange = (index: number, value: string) => {
       const next = [...urls];
       next[index] = value;
       setUrls(next);
+
+      setCurrentViewProps({ urls: next });
    };
 
    const addUrl = () => {

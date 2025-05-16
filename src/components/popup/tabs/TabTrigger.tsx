@@ -4,7 +4,7 @@ import { PopupTab } from "@/contexts/popup.provider.tsx";
 import { usePopup } from "@/hooks/contexts/usePopup.ts";
 
 const TabTrigger = () => {
-   const { currentTap, setCurrentTap } = usePopup();
+   const { currentTab, setCurrentTab } = usePopup();
 
    return (
       <div className="flex flex-col relative">
@@ -13,9 +13,9 @@ const TabTrigger = () => {
                <button
                   key={index}
                   className={`pb-2 transition-colors duration-150 cursor-pointer z-1  font-bold
-            ${currentTap === item ? "border-b-4 border-brandColor" : "opacity-45 hover:opacity-80"}
+            ${currentTab === item ? "border-b-4 border-brandColor" : "opacity-45 hover:opacity-80"}
           `}
-                  onClick={() => setCurrentTap(item)}
+                  onClick={() => setCurrentTab(item)}
                >
                   {item}
                </button>

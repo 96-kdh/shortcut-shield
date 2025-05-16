@@ -21,7 +21,7 @@ const InputCommand = ({
    value: CommandType;
 }) => {
    const { commands, formatDisplay } = useCommandDoNothing();
-   const { currentViewProps } = usePopup();
+   const { setCurrentViewProps, currentViewProps } = usePopup();
    const { mark, clear } = useValidationClass(injectionMissingClassName);
 
    const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -38,19 +38,29 @@ const InputCommand = ({
       setTriggerKey(trigKey);
 
       clear(e.currentTarget);
+
+      setCurrentViewProps({
+         command: {
+            value: `${modKey}+${trigKey}`,
+            type: "writable",
+         },
+      });
    }, []);
 
    useEffect(() => {
-      if (!currentViewProps.command) return;
+      if (!currentViewProps.command?.value) return;
 
-      const [_modifierKey, _triggerKey] = currentViewProps.command.split("+") as [ModifierKey, string];
+      const [_modifierKey, _triggerKey] = currentViewProps.command.value.split("+") as [ModifierKey, string];
       setModifierKey(_modifierKey);
       setTriggerKey(_triggerKey);
    }, [currentViewProps.command]);
 
    useEffect(() => {
-      if (!currentViewProps.command) {
+      if (!currentViewProps.command?.value) {
+         console.log("currentViewProps.command?.value: ", currentViewProps.command?.value);
+         console.log("value: ", value);
          const rules = commands.get(value);
+         console.log(rules);
          if (rules) {
             setModifierKey("");
             setTriggerKey("");
@@ -108,9 +118,9 @@ const InputCommand = ({
                event.preventDefault(); // 기본 커서 이동 등 동작 차단
                event.stopPropagation();
 
-               if (!currentViewProps.command) handleKeyDown(event);
+               if (!currentViewProps.command?.value) handleKeyDown(event);
             }}
-            className={`w-full max-w-28 bg-transparent border-0 text-center shadow-lg ${currentViewProps.command && "bg-gray-200 cursor-default"}`}
+            className={`w-full max-w-28 bg-transparent border-0 text-center shadow-lg ${currentViewProps.command?.value && "bg-gray-200 cursor-default"}`}
          />
       </div>
    );
