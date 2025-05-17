@@ -5,6 +5,7 @@ import ViewCustomSetCommand from "@/components/popup/View.Custom.SetCommand.tsx"
 import ViewDoNothingSetCommand from "@/components/popup/View.DoNothing.SetCommand.tsx";
 import TabContentsCustom from "@/components/popup/tabs/TabContents.Custom.tsx";
 import TabContentsDoNothing from "@/components/popup/tabs/TabContents.DoNothing.tsx";
+import TabContentsExtension from "@/components/popup/tabs/TabContents.Extension.tsx";
 import TabTrigger from "@/components/popup/tabs/TabTrigger.tsx";
 import { PopupTab, PopupView } from "@/contexts/popup.provider.tsx";
 import { usePopup } from "@/hooks/contexts/usePopup.ts";
@@ -22,7 +23,13 @@ const Index: React.FC = () => {
          ) : (
             <>
                <TabTrigger />
-               {currentTab === PopupTab.DoNothing ? <TabContentsDoNothing /> : <TabContentsCustom />}
+               {currentTab === PopupTab.DoNothing ? (
+                  <TabContentsDoNothing />
+               ) : currentTab === PopupTab.Custom ? (
+                  <TabContentsCustom />
+               ) : (
+                  <TabContentsExtension />
+               )}
             </>
          )}
       </div>

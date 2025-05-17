@@ -33,8 +33,12 @@ body {
   height: 100%;
 }
 
-.missingField {
+.errorField {
   border: 1px solid var(--destructive);
+}
+
+.warnField {
+  border: 1px solid var(--warning);
 }
 
 
@@ -87,6 +91,8 @@ body {
   --color-brandColor-900: var(--brandColor-900);
   --color-brandColor-950: var(--brandColor-950);
   --color-brandColor-foreground: var(--brandColor-foreground);
+
+  --warning: var(--warning);
 }
 
 :root {
@@ -135,6 +141,8 @@ body {
   --brandColor-900: oklch(0.5285 0.0838 81.21);
   --brandColor-950: oklch(0.4500 0.0750 81.21);
   --brandColor-foreground: oklch(0.145 0 0);
+
+  --warning: #FBBF24;
 }
 
 .dark {
@@ -182,6 +190,8 @@ body {
   --brandColor-900: oklch(0.5785 0.0922 81.21);
   --brandColor-950: oklch(0.5000 0.0825 81.21);
   --brandColor-foreground: oklch(0.145 0 0);
+
+  --warning: #FBBF24;
 }
 
 @layer base {

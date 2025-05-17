@@ -13,17 +13,23 @@ let customRules = new Map<
    {
       urls: Set<string>;
       isActive: boolean;
-      logic: string;
+      script: string;
    }
 >();
 
+let isActiveDelayEnter: boolean = false;
+let lastKeydownTime = 0;
+
 // 로드
 browser.storage.sync
-   .get(["doNothingRulesMap", "customRulesMap"])
-   .then((res: { doNothingRulesMap?: RawCommandRules; customRulesMap?: RawCustomRules }) => {
-      doNothingRule = rawToCommand(res.doNothingRulesMap);
-      customRules = rawToCustom(res.customRulesMap);
-   });
+   .get(["doNothingRulesMap", "customRulesMap", "isActiveDelayEnter"])
+   .then(
+      (res: { doNothingRulesMap?: RawCommandRules; customRulesMap?: RawCustomRules; isActiveDelayEnter?: boolean }) => {
+         doNothingRule = rawToCommand(res.doNothingRulesMap);
+         customRules = rawToCustom(res.customRulesMap);
+         isActiveDelayEnter = res.isActiveDelayEnter || false;
+      },
+   );
 
 // storage 변경 감지
 browser.storage.onChanged.addListener((changes, area) => {
@@ -36,6 +42,16 @@ browser.storage.onChanged.addListener((changes, area) => {
 document.addEventListener(
    "keydown",
    (e) => {
+      const elapsed = Date.now() - lastKeydownTime;
+      if (isActiveDelayEnter && e.code === "Enter" && elapsed < 500) {
+         e.preventDefault();
+         e.stopPropagation();
+         console.log("enter blocked");
+         return;
+      }
+
+      lastKeydownTime = Date.now();
+
       const modKey = detectModifierKey(e);
       const trigKey = detectTriggerKey(e);
       if (!modKey || !trigKey) return;
@@ -44,7 +60,7 @@ document.addEventListener(
 
       const href = window.location.href;
 
-      // 1) Custom Logic 우선 처리
+      // 1) Custom script 우선 처리
       const cr = customRules.get(cmd);
       if (cr && cr.isActive) {
          for (const pattern of cr.urls) {
@@ -54,13 +70,13 @@ document.addEventListener(
 
                browser.runtime
                   .sendMessage({
-                     type: "RUN_CUSTOM_LOGIC",
-                     code: cr.logic,
+                     type: "RUN_CUSTOM_script",
+                     code: cr.script,
                   })
                   .then((result) => {
                      console.log("sendMessage result: ", result);
                   })
-                  .catch((error) => console.error("Custom logic error", error));
+                  .catch((error) => console.error("Custom script error", error));
 
                return;
             }

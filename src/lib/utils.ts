@@ -90,3 +90,11 @@ export function matches(pattern: string, href: string): boolean {
 
   return false;
 }
+
+export const browserGlobals = (() => {
+   if (typeof window === "undefined") return "";
+   return Object.getOwnPropertyNames(window)
+      .filter((name) => /^[A-Za-z_$][\w$]*$/.test(name) && name !== "console")
+      .map((name) => `declare const ${name}: any;`)
+      .join("\n");
+})();

@@ -2,74 +2,63 @@ import { CircleHelp } from "lucide-react";
 import React, { useCallback, useEffect } from "react";
 
 import { Input, Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui";
-import { injectionMissingClassName } from "@/constant";
+import { PopupView } from "@/contexts/popup.provider.tsx";
 import { usePopup } from "@/hooks/contexts/usePopup.ts";
+import useCustomCommand from "@/hooks/useCommand.Custom.ts";
 import useCommandDoNothing from "@/hooks/useCommand.DoNothing.ts";
 import useValidationClass from "@/hooks/useValidationClass.ts";
 import { detectModifierKey, detectTriggerKey } from "@/lib/utils.ts";
-import { type CommandType, ModifierKey } from "@/types";
 
 export const popupCmdInputId = "shortcutShieldPopupCommandInputId";
 
-const InputCommand = ({
-   setModifierKey,
-   setTriggerKey,
-   value,
-}: {
-   setModifierKey: React.Dispatch<React.SetStateAction<ModifierKey | "">>;
-   setTriggerKey: React.Dispatch<React.SetStateAction<string>>;
-   value: CommandType;
-}) => {
-   const { commands, formatDisplay } = useCommandDoNothing();
-   const { setCurrentViewProps, currentViewProps } = usePopup();
-   const { mark, clear } = useValidationClass(injectionMissingClassName);
+const InputCommand = () => {
+   const { commands: doNothingCommands, formatDisplay } = useCommandDoNothing();
+   const { commands: customCommands } = useCustomCommand();
+   const { setCurrentViewProps, currentViewProps, currentView } = usePopup();
+   const { clear, mark } = useValidationClass();
 
    const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
       const modKey = detectModifierKey(e);
       const trigKey = detectTriggerKey(e);
 
       if (!modKey || !trigKey) {
-         setModifierKey("");
-         setTriggerKey("");
          return;
       }
 
-      setModifierKey(modKey);
-      setTriggerKey(trigKey);
-
       clear(e.currentTarget);
-
-      setCurrentViewProps({
-         command: {
-            value: `${modKey}+${trigKey}`,
-            type: "writable",
-         },
-      });
+      setCurrentViewProps.command({ value: `${modKey}+${trigKey}`, type: "writable" });
    }, []);
 
    useEffect(() => {
+      if (currentViewProps.command?.type === "readOnly") return;
       if (!currentViewProps.command?.value) return;
 
-      const [_modifierKey, _triggerKey] = currentViewProps.command.value.split("+") as [ModifierKey, string];
-      setModifierKey(_modifierKey);
-      setTriggerKey(_triggerKey);
-   }, [currentViewProps.command]);
+      const doNothingRules = doNothingCommands.get(currentViewProps.command.value);
+      const customRules = customCommands.get(currentViewProps.command.value);
 
-   useEffect(() => {
-      if (!currentViewProps.command?.value) {
-         console.log("currentViewProps.command?.value: ", currentViewProps.command?.value);
-         console.log("value: ", value);
-         const rules = commands.get(value);
-         console.log(rules);
-         if (rules) {
-            setModifierKey("");
-            setTriggerKey("");
-            mark(document.getElementById(popupCmdInputId), {
-               msg: "A command that is already in use.",
-            });
-         }
+      // error
+      if (
+         (currentView === PopupView.DoNothingNewCommand && doNothingRules) ||
+         (currentView === PopupView.CustomNewCommand && customRules)
+      ) {
+         setCurrentViewProps.command(undefined);
+         mark.error(document.getElementById(popupCmdInputId), {
+            msg: "A command that is already in use.",
+         });
+         return;
       }
-   }, [currentViewProps.command, commands, value]);
+
+      // warn
+      if (currentView === PopupView.DoNothingNewCommand && customRules) {
+         mark.warning(document.getElementById(popupCmdInputId), {
+            msg: "Commands that are already in use in Custom. \nIf the same Command is active in Custom, it will be ignored.",
+         });
+      } else if (currentView === PopupView.CustomNewCommand && doNothingRules) {
+         mark.warning(document.getElementById(popupCmdInputId), {
+            msg: "Command already in use by Do Nothing. \nIf that command is active, commands in Do Nothing will be ignored.",
+         });
+      }
+   }, [currentViewProps.command, currentView, customCommands, doNothingCommands]);
 
    return (
       <div>
@@ -112,15 +101,17 @@ const InputCommand = ({
             id={popupCmdInputId}
             onFocus={(e) => clear(e.target)}
             placeholder="E.g. Ctrl + S"
-            value={formatDisplay(value)}
+            value={formatDisplay(currentViewProps.command?.value || "")}
             readOnly
             onKeyDown={(event) => {
                event.preventDefault(); // 기본 커서 이동 등 동작 차단
                event.stopPropagation();
 
-               if (!currentViewProps.command?.value) handleKeyDown(event);
+               if (!currentViewProps.command?.value || currentViewProps.command.type === "writable") {
+                  handleKeyDown(event);
+               }
             }}
-            className={`w-full max-w-28 bg-transparent border-0 text-center shadow-lg ${currentViewProps.command?.value && "bg-gray-200 cursor-default"}`}
+            className={`w-full max-w-28 bg-transparent border-0 text-center shadow-lg ${currentViewProps.command?.type === "readOnly" && "bg-gray-200 cursor-default border-2"}`}
          />
       </div>
    );

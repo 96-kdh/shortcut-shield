@@ -8,6 +8,7 @@ const popupStorageKey = "shortcut-shield-popup-storage";
 export enum PopupTab {
    DoNothing = "Do Nothing",
    Custom = "Custom",
+   Extension = "Extension",
 }
 export enum PopupView {
    Index = "Index",
@@ -28,8 +29,9 @@ interface PopupViewPropsCommand {
 
 interface PopupViewProps {
    command?: PopupViewPropsCommand;
-   urls?: string[];
+   urls: string[];
    script?: string;
+   scriptDescription?: string;
 }
 
 type PopupProviderState = {
@@ -40,7 +42,12 @@ type PopupProviderState = {
    setCurrentView: (value: PopupView, props?: PopupViewProps) => void;
 
    currentViewProps: PopupViewProps;
-   setCurrentViewProps: (props: PopupViewProps) => void;
+   setCurrentViewProps: {
+      command: (_?: PopupViewPropsCommand) => void;
+      urls: (_: string[]) => void;
+      script: (_?: string) => void;
+      scriptDescription: (_?: string) => void;
+   };
 };
 
 const initialState: PopupProviderState = {
@@ -52,10 +59,16 @@ const initialState: PopupProviderState = {
 
    currentViewProps: {
       command: undefined,
-      urls: undefined,
+      urls: [""],
       script: undefined,
+      scriptDescription: undefined,
    },
-   setCurrentViewProps: () => {},
+   setCurrentViewProps: {
+      command: () => {},
+      urls: () => {},
+      script: () => {},
+      scriptDescription: () => {},
+   },
 };
 
 export const PopupProviderContext = createContext<PopupProviderState>(initialState);
@@ -64,22 +77,26 @@ export function PopupProvider({ children, ...props }: { children: React.ReactNod
    const [tab, setTab] = useState<PopupTab>(initialState.currentTab);
    const [view, setView] = useState<PopupView>(initialState.currentView);
 
-   const [viewPropsCommand, setViewPropsCommand] = useState<PopupViewPropsCommand | undefined>(undefined);
-   const [viewPropsUrls, setViewPropsUrls] = useState<string[] | undefined>(undefined);
-   const [viewPropsScript, setViewPropsScript] = useState<string | undefined>(undefined);
+   const [viewPropsCommand, setViewPropsCommand] = useState<PopupViewPropsCommand | undefined>(
+      initialState.currentViewProps.command,
+   );
+   const [viewPropsUrls, setViewPropsUrls] = useState<string[]>(initialState.currentViewProps.urls ?? [""]);
+   const [viewPropsScript, setViewPropsScript] = useState<string | undefined>(initialState.currentViewProps.script);
+   const [viewPropsScriptDescription, setViewPropsScriptDescription] = useState<string | undefined>(
+      initialState.currentViewProps.scriptDescription,
+   );
 
    useEffect(() => {
       browser.storage.local.get([popupStorageKey]).then((values) => {
          const value: PopupStorage | undefined = values[popupStorageKey];
 
-         console.log("value: ", value);
-
          if (value?.tab) setTab(value.tab);
          if (value?.view) setView(value.view);
          if (value?.viewProps) {
             setViewPropsCommand(value.viewProps.command);
-            setViewPropsUrls(value.viewProps.urls);
+            setViewPropsUrls(value.viewProps.urls ?? [""]);
             setViewPropsScript(value.viewProps.script);
+            setViewPropsScriptDescription(value.viewProps.scriptDescription);
          }
       });
    }, []);
@@ -95,22 +112,19 @@ export function PopupProvider({ children, ...props }: { children: React.ReactNod
                      command: viewPropsCommand,
                      urls: viewPropsUrls,
                      script: viewPropsScript,
+                     scriptDescription: viewPropsScriptDescription,
                   },
                },
             })
             .catch(console.error);
       };
 
-      console.log("viewPropsCommand: ", viewPropsCommand);
-      console.log("viewPropsScript: ", viewPropsScript);
-      console.log("viewPropsUrls: ", viewPropsUrls);
-
       window.addEventListener("unload", unMountHandler);
 
       return () => {
          window.removeEventListener("unload", unMountHandler);
       };
-   }, [tab, view, viewPropsCommand, viewPropsScript, viewPropsUrls]);
+   }, [tab, view, viewPropsCommand, viewPropsScript, viewPropsUrls, viewPropsScriptDescription]);
 
    const value = {
       currentTab: tab,
@@ -124,10 +138,12 @@ export function PopupProvider({ children, ...props }: { children: React.ReactNod
          if (props?.command) setViewPropsCommand(props.command);
          else if (props?.urls) setViewPropsUrls(props.urls);
          else if (props?.script) setViewPropsScript(props.script);
+         else if (props?.scriptDescription) setViewPropsScriptDescription(props.scriptDescription);
          else {
             setViewPropsCommand(undefined);
-            setViewPropsUrls(undefined);
+            setViewPropsUrls([""]);
             setViewPropsScript(undefined);
+            setViewPropsScriptDescription(undefined);
          }
       },
 
@@ -135,11 +151,13 @@ export function PopupProvider({ children, ...props }: { children: React.ReactNod
          command: viewPropsCommand,
          urls: viewPropsUrls,
          script: viewPropsScript,
+         scriptDescription: viewPropsScriptDescription,
       },
-      setCurrentViewProps: (props?: PopupViewProps) => {
-         if (props?.command) setViewPropsCommand(props.command);
-         else if (props?.urls) setViewPropsUrls(props.urls);
-         else if (props?.script) setViewPropsScript(props.script);
+      setCurrentViewProps: {
+         command: setViewPropsCommand,
+         urls: setViewPropsUrls,
+         script: setViewPropsScript,
+         scriptDescription: setViewPropsScriptDescription,
       },
    };
 

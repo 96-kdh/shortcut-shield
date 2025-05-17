@@ -4,7 +4,7 @@ import browser from "webextension-polyfill";
 import { KEY_DISPLAY_MAP, NAMED_KEYS } from "@/constant";
 import type { CommandRules, CommandType, RawCommandRules, RawRule } from "@/types";
 
-const useCommandUtils = () => {
+export const useCommandUtils = () => {
    const isMac = useMemo(() => navigator.platform.toUpperCase().includes("MAC"), []);
 
    // 3) 내부 “Meta+ArrowUp” 같은 문자열을 → “⌘↑” 로 바꿔주는 헬퍼

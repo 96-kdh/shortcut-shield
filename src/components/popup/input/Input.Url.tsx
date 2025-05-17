@@ -1,32 +1,29 @@
 import { CircleHelp, Plus, Trash } from "lucide-react";
-import React, { useEffect } from "react";
+import React from "react";
 
 import { Button, Input, Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui";
-import { injectionMissingClassName } from "@/constant";
 import { usePopup } from "@/hooks/contexts/usePopup.ts";
 import useValidationClass from "@/hooks/useValidationClass.ts";
 
 export const popupUrlInputClassName = "shortcutShieldPopupUrlInputClassName";
 
-const InputUrl = ({ urls, setUrls }: { urls: string[]; setUrls: React.Dispatch<React.SetStateAction<string[]>> }) => {
-   const { setCurrentViewProps } = usePopup();
-   const { clear } = useValidationClass(injectionMissingClassName);
+const InputUrl = () => {
+   const { setCurrentViewProps, currentViewProps } = usePopup();
+   const { clear } = useValidationClass();
 
    const handleUrlChange = (index: number, value: string) => {
-      const next = [...urls];
+      const next = [...currentViewProps.urls];
       next[index] = value;
-      setUrls(next);
-
-      setCurrentViewProps({ urls: next });
+      setCurrentViewProps.urls(next);
    };
 
    const addUrl = () => {
-      setUrls((prev) => [...prev, ""]);
+      setCurrentViewProps.urls([...currentViewProps.urls, ""]);
    };
 
    const removeUrl = (index: number) => {
-      if ([...urls].length <= 1) return;
-      setUrls((prev) => prev.filter((_, i) => i !== index));
+      if (currentViewProps.urls.length <= 1) return;
+      setCurrentViewProps.urls(currentViewProps.urls.filter((_, i) => i !== index));
    };
 
    return (
@@ -55,7 +52,7 @@ const InputUrl = ({ urls, setUrls }: { urls: string[]; setUrls: React.Dispatch<R
             </Tooltip>
          </TooltipProvider>
 
-         {urls.map((url, idx) => (
+         {currentViewProps.urls.map((url, idx) => (
             <div key={idx} className={`flex items-center space-x-2 ${idx !== 0 && "mt-2"}`}>
                <Input
                   onFocus={(e) => clear(e.target)}
@@ -68,8 +65,8 @@ const InputUrl = ({ urls, setUrls }: { urls: string[]; setUrls: React.Dispatch<R
                   variant="ghost"
                   size="icon"
                   onClick={() => removeUrl(idx)}
-                  disabled={urls.length === 1}
-                  className={`${urls.length === 1 ? "text-gray-400" : "text-destructive"} disabled:opacity-50 cursor-pointer shadow-lg`}
+                  disabled={currentViewProps.urls.length === 1}
+                  className={`${currentViewProps.urls.length === 1 ? "text-gray-400" : "text-destructive"} disabled:opacity-50 cursor-pointer shadow-lg`}
                >
                   <Trash className="w-4 h-4" />
                </Button>

@@ -21,15 +21,14 @@ import useCustomCommand from "@/hooks/useCommand.Custom.ts";
 import useCommandDoNothing from "@/hooks/useCommand.DoNothing.ts";
 
 const TabContentsCustom = () => {
-   const { formatDisplay } = useCommandDoNothing();
-   const { customCommands, setCustomActive, deleteCustomCommand } = useCustomCommand();
+   const { commands, setActive, delCommand, formatDisplay } = useCustomCommand();
    const { setCurrentView, currentViewProps } = usePopup();
 
    return (
       <>
          <div className="space-y-4 flex-1 min-h-80 h-full overflow-y-scroll py-4">
             <div className="space-y-4">
-               {Array.from(customCommands.entries()).map(([cmd, rule]) => (
+               {Array.from(commands.entries()).map(([cmd, rule]) => (
                   <div
                      key={cmd}
                      className="flex items-center justify-between p-4 bg-gray-100 dark:bg-sidebar-accent rounded-lg shadow-md"
@@ -40,13 +39,16 @@ const TabContentsCustom = () => {
                            value={formatDisplay(cmd)}
                            readOnly
                         />
+                        {rule.scriptDescription && (
+                           <p className="text-sm text-muted-foreground mt-1 px-2">{rule.scriptDescription}</p>
+                        )}
                      </div>
 
                      <div className="flex items-center justify-between gap-1">
                         <Switch
                            checked={rule.isActive}
                            className="cursor-pointer data-[state=checked]:bg-brandColor"
-                           onClick={() => setCustomActive(cmd, !rule.isActive)}
+                           onClick={() => setActive(cmd, !rule.isActive)}
                         />
 
                         <div
@@ -78,7 +80,7 @@ const TabContentsCustom = () => {
                               </AlertDialogHeader>
                               <AlertDialogFooter>
                                  <AlertDialogCancel className="cursor-pointer">Cancel</AlertDialogCancel>
-                                 <AlertDialogAction className="cursor-pointer" onClick={() => deleteCustomCommand(cmd)}>
+                                 <AlertDialogAction className="cursor-pointer" onClick={() => delCommand(cmd)}>
                                     Continue
                                  </AlertDialogAction>
                               </AlertDialogFooter>

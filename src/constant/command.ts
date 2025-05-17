@@ -30,4 +30,5 @@ export const KEY_DISPLAY_MAP: Record<NAMED_KEYS, string> = {
    [NAMED_KEYS.Delete]: "Del",
 };
 
-export const injectionMissingClassName = "missingField";
+export const injectionErrorClassName = "errorField";
+export const injectionWarnClassName = "warnField";
