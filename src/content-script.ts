@@ -11,7 +11,9 @@ import type { CommandType } from "@/types";
 let doNothingRule = new Map<CommandType, DoNothingRule>();
 let customRules = new Map<CommandType, CustomRule>();
 let extensionRules: RawExtensionRules = { isActiveDelayEnter: false };
+
 let lastKeydownTime = 0;
+let lastKeydownCode = "";
 
 // 로드
 browser.storage.sync
@@ -48,7 +50,10 @@ browser.storage.onChanged.addListener((changes, area) => {
  * Handles keydown events according to extension rules.
  */
 export function handleKeydown(e: KeyboardEvent) {
-   if (e.shiftKey && e.code === "Enter") return; //
+   lastKeydownCode = e.code;
+   // Delay Enter logic exceptions
+   if (e.shiftKey && e.code === "Enter") return;
+   else if (lastKeydownCode === "Enter" && e.code === "Enter") return;
 
    // Delay Enter logic
    const elapsed = Date.now() - lastKeydownTime;

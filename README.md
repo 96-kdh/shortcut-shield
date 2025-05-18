@@ -26,6 +26,7 @@
 3. **Delay Enter (Extension tab)**
 
     * Blocks `Enter` events occurring within 500ms of the previous keystroke to avoid accidental submissions.
+    * Consecutive `Enter` events are not blocked.
     * Applies to all URLs.
 
 4. **URL Pattern Matching**

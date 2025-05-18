@@ -51,10 +51,10 @@ const resources = {
             "Important: Some browser- or OS-reserved shortcuts may not be intercepted at the top level and therefore won’t be blocked by this extension. Please choose combinations that aren’t already claimed by your browser.",
          delayEnterDescription:
             "When you press Enter, it checks how much time has passed since the last keystroke.<br/>" +
-            "If it's less than <0>500 milliseconds, the Enter event is blocked.</0><br/>" +
-            "If more than 500 milliseconds have passed, the event is allowed to proceed normally.<br/>" +
+            "If it's less than 500 milliseconds, the Enter event is blocked.<br/>" +
+            "After 500 milliseconds, or if you type Enter in succession, the behavior will proceed normally.<br/>" +
             "This way, accidental fast presses are ignored, but intentional submissions after a pause still work fine.<br/>" +
-            "<0>Applies to all possible URLs.</0>",
+            "Applies to all possible URLs.",
 
          term1Title: "I Wrote This Code Myself",
          term1Description:
@@ -108,10 +108,10 @@ const resources = {
             "중요: 일부 브라우저 또는 OS 예약 단축키는 최상위 레벨에서 가로채지 못할 수 있으므로 차단되지 않을 수 있습니다. 브라우저에서 이미 사용 중이지 않은 조합을 선택하세요.",
          delayEnterDescription:
             "Enter 키를 누르면 마지막 키 입력 이후 경과 시간을 확인합니다.<br/>" +
-            "<0>500밀리초</0> 이내라면 <0>Enter 이벤트가 차단</0>됩니다.<br/>" +
-            "500밀리초 이후라면 정상적으로 동작이 진행됩니다.<br/>" +
+            "500밀리초 이내라면 Enter 이벤트가 차단됩니다.<br/>" +
+            "500밀리초 이후 또는 연속해서 Enter 를 입력하는경우 정상적으로 동작이 진행됩니다.<br/>" +
             "이렇게 하면 실수로 빠르게 누르는 것은 무시되지만 일시 정지 후 의도적으로 제출하는 것은 여전히 정상적으로 작동합니다.<br/>" +
-            "<0>모든 가능한 URL에 적용됩니다.</0>",
+            "가능한 모든 URL에 적용됩니다.",
 
          term1Title: "이 코드는 내가 직접 작성했습니다",
          term1Description:
