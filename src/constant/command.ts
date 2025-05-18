@@ -32,3 +32,14 @@ export const KEY_DISPLAY_MAP: Record<NAMED_KEYS, string> = {
 
 export const injectionErrorClassName = "errorField";
 export const injectionWarnClassName = "warnField";
+
+export enum SyncStorageKey {
+   DoNothing = "ShortcutShieldDoNothing",
+   Custom = "ShortcutShieldCustom",
+   Extension = "ShortcutShieldExtension",
+}
+export enum LocalStorageKey {
+   PopupConText = "ShortcutShieldPopupConText",
+   ThemeConText = "ShortcutShieldThemeConText",
+}
+export const sendMsgType = "RUN_CUSTOM_SCRIPT";

@@ -1,0 +1,2 @@
+# ignore all tests
+/src/__test__/**/*.test.ts

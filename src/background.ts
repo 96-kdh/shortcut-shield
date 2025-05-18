@@ -1,7 +1,13 @@
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-nocheck
 import browser from "webextension-polyfill";
+
+import { sendMsgType } from "@/constant";
 
 // background.js
 browser.runtime.onMessage.addListener(async (msg, sender) => {
+   if (msg.type !== sendMsgType) return;
+
    let response = {
       status: 200,
       exceptionDetails: {

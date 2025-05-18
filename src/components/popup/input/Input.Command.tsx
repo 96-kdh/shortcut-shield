@@ -1,10 +1,11 @@
 import { CircleHelp } from "lucide-react";
 import React, { useCallback, useEffect } from "react";
+import { Trans, useTranslation } from "react-i18next";
 
 import { Input, Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui";
 import { PopupView } from "@/contexts/popup.provider.tsx";
 import { usePopup } from "@/hooks/contexts/usePopup.ts";
-import useCustomCommand from "@/hooks/useCommand.Custom.ts";
+import useCommandCustom from "@/hooks/useCommand.Custom.ts";
 import useCommandDoNothing from "@/hooks/useCommand.DoNothing.ts";
 import useValidationClass from "@/hooks/useValidationClass.ts";
 import { detectModifierKey, detectTriggerKey } from "@/lib/utils.ts";
@@ -12,8 +13,9 @@ import { detectModifierKey, detectTriggerKey } from "@/lib/utils.ts";
 export const popupCmdInputId = "shortcutShieldPopupCommandInputId";
 
 const InputCommand = () => {
+   const { t } = useTranslation();
    const { commands: doNothingCommands, formatDisplay } = useCommandDoNothing();
-   const { commands: customCommands } = useCustomCommand();
+   const { commands: customCommands } = useCommandCustom();
    const { setCurrentViewProps, currentViewProps, currentView } = usePopup();
    const { clear, mark } = useValidationClass();
 
@@ -43,7 +45,7 @@ const InputCommand = () => {
       ) {
          setCurrentViewProps.command(undefined);
          mark.error(document.getElementById(popupCmdInputId), {
-            msg: "A command that is already in use.",
+            msg: t("alreadyUsed"),
          });
          return;
       }
@@ -51,11 +53,11 @@ const InputCommand = () => {
       // warn
       if (currentView === PopupView.DoNothingNewCommand && customRules) {
          mark.warning(document.getElementById(popupCmdInputId), {
-            msg: "Commands that are already in use in Custom. \nIf the same Command is active in Custom, it will be ignored.",
+            msg: t("alreadyUsedInCustom"),
          });
       } else if (currentView === PopupView.CustomNewCommand && doNothingRules) {
          mark.warning(document.getElementById(popupCmdInputId), {
-            msg: "Command already in use by Do Nothing. \nIf that command is active, commands in Do Nothing will be ignored.",
+            msg: t("alreadyUsedInDoNothing"),
          });
       }
    }, [currentViewProps.command, currentView, customCommands, doNothingCommands]);
@@ -70,28 +72,24 @@ const InputCommand = () => {
                   </label>
                </TooltipTrigger>
                <TooltipContent side="top" align="start" className="max-w-xs whitespace-normal break-words">
-                  <div className="space-y-1 text-sm">
-                     <p>
-                        <strong>Allowed modifier keys</strong>: Alt, Ctrl, Command (macOS) or Windows (Win)
-                     </p>
-                     <p>
-                        <strong>Key selection</strong>: Any single alphanumeric character (A–Z, a–z, 0–9) or common
-                        special symbols (e.g.{" "}
-                        <code className="bg-sidebar-accent text-sidebar-accent-foreground px-1">
-                           . , ↑ ← Insert, Delete ...
-                        </code>
-                        )
-                     </p>
-                     <p>
-                        <strong>Syntax</strong>: Must be in the form <code>&lt;Modifier&gt;+&lt;Key&gt;</code> (e.g.
-                        <code className="bg-sidebar-accent text-sidebar-accent-foreground px-1">Ctrl+S</code>,{" "}
-                        <code className="bg-sidebar-accent text-sidebar-accent-foreground px-1">Ctrl+T</code>)
-                     </p>
-                     <p>
-                        <strong>Important</strong>: Some browser- or OS-reserved shortcuts may not be intercepted at the
-                        top level and therefore won’t be blocked by this extension. Please choose combinations that
-                        aren’t already claimed by your browser.
-                     </p>
+                  <div className="space-y-2 text-sm">
+                     <Trans i18nKey="tooltipCommandModifier" components={[<strong key="0" />]} />
+                     <Trans
+                        i18nKey="tooltipCommandSelection"
+                        components={[
+                           <strong key="0" />,
+                           <code key="1" className="bg-sidebar-accent text-sidebar-accent-foreground px-1" />,
+                        ]}
+                     />
+                     <Trans
+                        i18nKey="tooltipCommandSyntax"
+                        components={[
+                           <strong key="0" />,
+                           <code key="1" className="bg-sidebar-accent text-sidebar-accent-foreground px-1" />,
+                           <code key="2" className="bg-sidebar-accent text-sidebar-accent-foreground px-1" />,
+                        ]}
+                     />
+                     <Trans i18nKey="tooltipCommandImportant" components={[<strong key="0" />]} />
                   </div>
                </TooltipContent>
             </Tooltip>

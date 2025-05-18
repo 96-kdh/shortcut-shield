@@ -1,5 +1,6 @@
 import { CircleHelp, Plus, Trash } from "lucide-react";
 import React from "react";
+import { Trans, useTranslation } from "react-i18next";
 
 import { Button, Input, Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui";
 import { usePopup } from "@/hooks/contexts/usePopup.ts";
@@ -8,6 +9,7 @@ import useValidationClass from "@/hooks/useValidationClass.ts";
 export const popupUrlInputClassName = "shortcutShieldPopupUrlInputClassName";
 
 const InputUrl = () => {
+   const { t } = useTranslation();
    const { setCurrentViewProps, currentViewProps } = usePopup();
    const { clear } = useValidationClass();
 
@@ -38,14 +40,12 @@ const InputUrl = () => {
                <TooltipContent side="top" align="start" className="max-w-xs whitespace-normal break-words">
                   <div className="space-y-1 text-sm">
                      <p className="text-sm">
-                        Please enter a fully qualified URL that begins with{" "}
-                        <code className="bg-sidebar-accent text-sidebar-accent-foreground px-1">http://</code> or{" "}
-                        <code className="bg-sidebar-accent text-sidebar-accent-foreground px-1">https://</code> and
-                        includes a top-level domain (for example,{" "}
-                        <code className="bg-sidebar-accent text-sidebar-accent-foreground px-1">
-                           https://example.com
-                        </code>
-                        )
+                        <Trans
+                           i18nKey="tooltipUrl"
+                           components={[
+                              <code key={"0"} className="bg-sidebar-accent text-sidebar-accent-foreground px-1" />,
+                           ]}
+                        />
                      </p>
                   </div>
                </TooltipContent>
@@ -79,7 +79,7 @@ const InputUrl = () => {
             className="flex items-center justify-center px-2 bg-brandColor text-brandColor-foreground hover:bg-brandColor-600 font-bold mt-4 cursor-pointer"
          >
             <Plus className="w-4 h-4 mr-1" />
-            Add URL
+            {t("AddURL")}
          </Button>
       </div>
    );

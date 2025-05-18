@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from "react";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
 import InputCommand, { popupCmdInputId } from "@/components/popup/input/Input.Command.tsx";
@@ -6,10 +7,12 @@ import InputUrl, { popupUrlInputClassName } from "@/components/popup/input/Input
 import { Button } from "@/components/ui";
 import { PopupView } from "@/contexts/popup.provider.tsx";
 import { usePopup } from "@/hooks/contexts/usePopup.ts";
-import useCommandDoNothing, { isValidUrl } from "@/hooks/useCommand.DoNothing.ts";
+import useCommandDoNothing from "@/hooks/useCommand.DoNothing.ts";
 import useValidationClass from "@/hooks/useValidationClass.ts";
+import { isValidUrl } from "@/lib/utils.ts";
 
 const ViewDoNothingSetCommand: React.FC = () => {
+   const { t } = useTranslation();
    const { commands, updateCommand } = useCommandDoNothing();
    const { setCurrentView, currentViewProps, setCurrentViewProps } = usePopup();
    const { mark } = useValidationClass();
@@ -25,7 +28,7 @@ const ViewDoNothingSetCommand: React.FC = () => {
       for (const el of urlInputsElements) {
          if (!el.value || isValidUrl(el.value)) continue;
          mark.error(el, {
-            msg: "Please enter a fully qualified URL that begins with http:// or https:// and includes a top-level domain.",
+            msg: t("fullQualifiedUrl"),
             parentPosition: "afterend",
          });
          isPassed = false;
@@ -33,13 +36,13 @@ const ViewDoNothingSetCommand: React.FC = () => {
 
       if (!currentViewProps.command?.value) {
          mark.error(document.getElementById(popupCmdInputId), {
-            msg: "Does not accept null values.",
+            msg: t("doesNotAcceptNull"),
          });
          isPassed = false;
       }
 
       if (!isPassed) {
-         toast.warning("There are invalid values to submit.");
+         toast.warning(t("invalidValues"));
          return;
       }
 
@@ -74,7 +77,7 @@ const ViewDoNothingSetCommand: React.FC = () => {
             onClick={submitHandler}
             className="w-full py-3 bg-brandColor text-brandColor-foreground hover:bg-brandColor-600 font-bold cursor-pointer"
          >
-            Save
+            {t("save")}
          </Button>
       </>
    );

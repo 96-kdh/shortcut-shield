@@ -1,27 +1,15 @@
-import { Settings, Trash } from "lucide-react";
+import { Settings } from "lucide-react";
 import React from "react";
+import { useTranslation } from "react-i18next";
 
-import {
-   AlertDialog,
-   AlertDialogAction,
-   AlertDialogCancel,
-   AlertDialogContent,
-   AlertDialogDescription,
-   AlertDialogFooter,
-   AlertDialogHeader,
-   AlertDialogTitle,
-   AlertDialogTrigger,
-   Button,
-   Input,
-   Switch,
-} from "@/components/ui";
+import AlertDialogAskSure from "@/components/popup/alertDialog/AlertDialog.askSure.tsx";
+import { Button, Input, Switch } from "@/components/ui";
 import { PopupView } from "@/contexts/popup.provider.tsx";
 import { usePopup } from "@/hooks/contexts/usePopup.ts";
-import useCustomCommand from "@/hooks/useCommand.Custom.ts";
-import useCommandDoNothing from "@/hooks/useCommand.DoNothing.ts";
+import useCommandCustom from "@/hooks/useCommand.Custom.ts";
 
 const TabContentsCustom = () => {
-   const { commands, setActive, delCommand, formatDisplay } = useCustomCommand();
+   const { commands, setActive, delCommand, formatDisplay } = useCommandCustom();
    const { setCurrentView, currentViewProps } = usePopup();
 
    return (
@@ -65,27 +53,7 @@ const TabContentsCustom = () => {
                         >
                            <Settings className="w-4 h-4" />
                         </div>
-                        <AlertDialog>
-                           <AlertDialogTrigger>
-                              <div className="p-1 cursor-pointer shadow:lg text-accent-foreground hover:text-brandColor">
-                                 <Trash className="w-4 h-4" />
-                              </div>
-                           </AlertDialogTrigger>
-                           <AlertDialogContent>
-                              <AlertDialogHeader>
-                                 <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-                                 <AlertDialogDescription>
-                                    This action cannot be undone. This will delete all internal URLs.
-                                 </AlertDialogDescription>
-                              </AlertDialogHeader>
-                              <AlertDialogFooter>
-                                 <AlertDialogCancel className="cursor-pointer">Cancel</AlertDialogCancel>
-                                 <AlertDialogAction className="cursor-pointer" onClick={() => delCommand(cmd)}>
-                                    Continue
-                                 </AlertDialogAction>
-                              </AlertDialogFooter>
-                           </AlertDialogContent>
-                        </AlertDialog>
+                        <AlertDialogAskSure onClick={() => delCommand(cmd)} />
                      </div>
                   </div>
                ))}

@@ -1,20 +1,57 @@
 import React, { useCallback, useEffect, useState } from "react";
+import { Trans, useTranslation } from "react-i18next";
 import browser from "webextension-polyfill";
 
 import { Input, Switch } from "@/components/ui";
+import { SyncStorageKey } from "@/constant";
+
+// type ExtensionRuleOf<UrlsType> = {
+//    urls: UrlsType;
+//    isActive: boolean;
+//    scriptDescription?: string;
+// };
+// // export type ExtensionRule = ExtensionRuleOf<Set<string> | "*">;
+// export type ExtensionRule = ExtensionRuleOf<"*">;
+// export type ExtensionRules = Map<string, ExtensionRule>;
+//
+// export const initialExtensionRules: ExtensionRules = new Map().set("Enter", {
+//    urls: "*",
+//    isActive: false,
+//    scriptDescription: "...scriptDescription",
+// });
+
+export type RawExtensionRules = {
+   isActiveDelayEnter: boolean;
+};
 
 const TabContentsExtension = () => {
-   const [isActiveDelayEnter, setIsActiveDelayEnter] = useState<boolean>(false);
+   const { t } = useTranslation();
+
+   const [rawExtensionRule, setRawExtensionRule] = useState<RawExtensionRules>({
+      isActiveDelayEnter: false,
+   });
 
    const activeHandler = useCallback(async () => {
-      await browser.storage.sync.set({ isActiveDelayEnter: !isActiveDelayEnter });
-      setIsActiveDelayEnter(!isActiveDelayEnter);
-   }, [isActiveDelayEnter]);
+      await browser.storage.sync.set({
+         [SyncStorageKey.Extension]: {
+            isActiveDelayEnter: !rawExtensionRule.isActiveDelayEnter,
+         },
+      });
+
+      setRawExtensionRule({
+         ...rawExtensionRule,
+         isActiveDelayEnter: !rawExtensionRule.isActiveDelayEnter,
+      });
+   }, [rawExtensionRule.isActiveDelayEnter]);
 
    useEffect(() => {
-      browser.storage.sync.get("isActiveDelayEnter").then((res: { isActiveDelayEnter?: boolean }) => {
-         if (res.isActiveDelayEnter) setIsActiveDelayEnter(res.isActiveDelayEnter);
-      });
+      browser.storage.sync
+         .get(SyncStorageKey.Extension)
+         .then((res: { [SyncStorageKey.Extension]?: RawExtensionRules }) => {
+            if (res[SyncStorageKey.Extension]?.isActiveDelayEnter) {
+               setRawExtensionRule(res[SyncStorageKey.Extension]);
+            }
+         });
    }, []);
 
    return (
@@ -24,29 +61,16 @@ const TabContentsExtension = () => {
                <div>
                   <Input className="font-medium text-center max-w-24 cursor-default" value={"Enter"} readOnly />
                   <p className="text-sm text-muted-foreground mt-1 px-2">
-                     When you press Enter, it checks how much time has passed since the last keystroke.
-                     <br />
-                     <br />
-                     <code className="font-bold text-sidebar-accent-foreground">
-                        If it's less than 500 milliseconds, the Enter event is blocked.
-                     </code>
-                     <br />
-                     If more than 500 milliseconds have passed, the event is allowed to proceed normally.
-                     <br />
-                     <br />
-                     This way, accidental fast presses are ignored, but intentional submissions after a pause still work
-                     fine.
-                     <br />
-                     <br />
-                     <code className="bg-sidebar-accent text-sidebar-accent-foreground">
-                        Applies to all possible URLs.
-                     </code>
+                     <Trans
+                        i18nKey="delayEnterDescription"
+                        components={[<code key="0" className="font-bold text-sidebar-accent-foreground" />]}
+                     />
                   </p>
                </div>
 
                <div className="flex items-center justify-between gap-1">
                   <Switch
-                     checked={isActiveDelayEnter}
+                     checked={rawExtensionRule.isActiveDelayEnter}
                      className="cursor-pointer data-[state=checked]:bg-brandColor"
                      onClick={activeHandler}
                   />

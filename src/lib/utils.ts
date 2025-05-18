@@ -2,8 +2,8 @@ import { type ClassValue, clsx } from "clsx";
 import React from "react";
 import { twMerge } from "tailwind-merge";
 
-import { isValidKey } from "@/hooks/useCommand.DoNothing.ts";
 import { ModifierKey } from "@/types";
+import { NAMED_KEYS } from "@/constant";
 
 export function cn(...inputs: ClassValue[]) {
    return twMerge(clsx(inputs));
@@ -91,7 +91,33 @@ export function matches(pattern: string, href: string): boolean {
   return false;
 }
 
-export const browserGlobals = (() => {
+/**
+ * @param key 입력된 키 문자열 (예: "A", "comma", "PageUp" 등)
+ * @returns 목록에 있는 키면 true
+ */
+export function isValidKey(key: string): boolean {
+   const k = key.trim();
+   // 1글자짜리 알파벳/숫자 허용
+   if (/^[A-Za-z0-9]$/.test(k)) return true;
+   // Named 키 허용 (대소문자 구분 없이)
+   if (new Set(Object.values(NAMED_KEYS).map((k) => k.toLowerCase())).has(k.toLowerCase())) return true;
+   return false;
+}
+
+/**
+ * 허용할 프로토콜 목록을 화이트리스트로 체크합니다.
+ * - http, https, file 만 허용하려면 이대로 쓰세요.
+ */
+export function isValidUrl(urlStr: string): boolean {
+   try {
+      const u = new URL(urlStr);
+      return ["http:", "https:"].includes(u.protocol);
+   } catch {
+      return false;
+   }
+}
+
+export const browserGlobals = (()=> {
    if (typeof window === "undefined") return "";
    return Object.getOwnPropertyNames(window)
       .filter((name) => /^[A-Za-z_$][\w$]*$/.test(name) && name !== "console")

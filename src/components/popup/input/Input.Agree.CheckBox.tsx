@@ -1,33 +1,33 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 
 import { Checkbox } from "@/components/ui";
 import useValidationClass from "@/hooks/useValidationClass.ts";
 
-const terms = [
-   {
-      id: "terms1",
-      title: "I Wrote This Code Myself",
-      description:
-         "I confirm that this script is entirely my own work, was not copied from anyone else, and that I fully understand what it does.",
-   },
-   {
-      id: "terms2",
-      title: "I’ve Checked for Malicious Content",
-      description:
-         "I have reviewed the code and verified that it contains no malicious functions or hidden payloads. (If I lack the expertise to audit it myself, I will consult an AI tool or security professional before running it.)",
-   },
-   {
-      id: "terms3",
-      title: "I Accept All Risks & Liability",
-      description:
-         "I understand the potential security and stability risks of running this code, and I accept full responsibility for any consequences.",
-   },
-];
-
 export const popupAgreeCheckboxInputClassName = "shortcutShieldPopupAgreeCheckboxInputClassName";
 
 const InputAgreeCheckBox = () => {
+   const { t } = useTranslation();
    const { clear } = useValidationClass();
+
+   const terms = [
+      {
+         id: "terms1",
+         title: t("term1Title"),
+         description: t("term1Description"),
+      },
+      {
+         id: "terms2",
+         title: t("term2Title"),
+         description: t("term2Description"),
+      },
+      {
+         id: "terms3",
+         title: t("term3Title"),
+         description: t("term3Description"),
+      },
+   ];
+
    return (
       <div className="mt-2">
          {terms.map((term) => (

@@ -1,64 +1,33 @@
-// src/hooks/useCustomCommand.ts
 import { useEffect, useState } from "react";
 import browser from "webextension-polyfill";
 
+import { SyncStorageKey } from "@/constant";
 import { useCommandUtils } from "@/hooks/useCommand.DoNothing.ts";
 import type { CommandType } from "@/types";
 
-/**
- * Custom script rule: 다수 URL + JS 로직 + 활성화 플래그
- */
-export interface CustomRule {
-   urls: Set<string>;
+type CustomRuleOf<UrlsType> = {
+   urls: UrlsType;
    isActive: boolean;
    script: string;
    scriptDescription?: string;
-}
+};
+
+// JSON 저장용
+export type RawCustomRule = CustomRuleOf<string[]>;
+export type RawCustomRules = Record<CommandType, RawCustomRule>;
+// 런타임용
+export type CustomRule = CustomRuleOf<Set<string>>;
 export type CustomRules = Map<CommandType, CustomRule>;
-export type RawCustomRules = Record<
-   CommandType,
-   { urls: string[]; isActive: boolean; script: string; scriptDescription?: string }
->;
 
 /**
- * rawStorage → Map<CommandType, CustomRule>
+ * useCommandCustom 훅
  */
-export function rawToCustom(raw: RawCustomRules = {}): CustomRules {
-   const map: CustomRules = new Map();
-   for (const [cmd, { urls, isActive, script, scriptDescription }] of Object.entries(raw) as [
-      CommandType,
-      { urls: string[]; isActive: boolean; script: string; scriptDescription?: string },
-   ][]) {
-      map.set(cmd, {
-         urls: new Set(urls),
-         isActive,
-         script,
-         scriptDescription,
-      });
-   }
-   return map;
-}
-
-/**
- * CustomRules → Storage 직렬화 객체
- */
-export function customToRaw(map: CustomRules): RawCustomRules {
-   const raw: RawCustomRules = {} as any;
-   for (const [cmd, { urls, isActive, script, scriptDescription }] of map.entries()) {
-      raw[cmd] = { urls: Array.from(urls), isActive, script, scriptDescription };
-   }
-   return raw;
-}
-
-/**
- * useCustomCommand 훅
- */
-export default function useCustomCommand() {
+export default function useCommandCustom() {
    const [commands, _setCommands] = useState<CustomRules>(new Map());
 
    // storage 업데이트 함수
    const _save = async (value: CustomRules) => {
-      await browser.storage.sync.set({ customRulesMap: customToRaw(value) });
+      await browser.storage.sync.set({ [SyncStorageKey.Custom]: customToRaw(value) });
       _setCommands(new Map(value));
    };
 
@@ -106,8 +75,8 @@ export default function useCustomCommand() {
    };
 
    useEffect(() => {
-      browser.storage.sync.get("customRulesMap").then((res: { customRulesMap?: RawCustomRules }) => {
-         _setCommands(rawToCustom(res.customRulesMap));
+      browser.storage.sync.get(SyncStorageKey.Custom).then((res: { [SyncStorageKey.Custom]?: RawCustomRules }) => {
+         _setCommands(rawToCustom(res[SyncStorageKey.Custom]));
       });
    }, []);
 
@@ -118,4 +87,34 @@ export default function useCustomCommand() {
       setActive,
       ...useCommandUtils(),
    };
+}
+
+/**
+ * rawStorage → Map<CommandType, CustomRule>
+ */
+export function rawToCustom(raw: RawCustomRules = {}): CustomRules {
+   const map: CustomRules = new Map();
+   for (const [cmd, { urls, isActive, script, scriptDescription }] of Object.entries(raw) as [
+      CommandType,
+      { urls: string[]; isActive: boolean; script: string; scriptDescription?: string },
+   ][]) {
+      map.set(cmd, {
+         urls: new Set(urls),
+         isActive,
+         script,
+         scriptDescription,
+      });
+   }
+   return map;
+}
+
+/**
+ * CustomRules → Storage 직렬화 객체
+ */
+export function customToRaw(map: CustomRules): RawCustomRules {
+   const raw: RawCustomRules = {} as any;
+   for (const [cmd, { urls, isActive, script, scriptDescription }] of map.entries()) {
+      raw[cmd] = { urls: Array.from(urls), isActive, script, scriptDescription };
+   }
+   return raw;
 }

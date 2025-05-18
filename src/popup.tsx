@@ -12,7 +12,7 @@ const container = document.getElementById("root")!;
 
 ReactDOM.createRoot(container).render(
    <React.StrictMode>
-      <ThemeProvider defaultTheme="system" storageKey="shortcut-shield-ui-theme">
+      <ThemeProvider defaultTheme="system">
          <PopupProvider>
             <Home />
             <Toaster richColors />

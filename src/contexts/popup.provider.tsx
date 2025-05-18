@@ -1,9 +1,8 @@
 import React, { createContext, useEffect, useState } from "react";
 import browser from "webextension-polyfill";
 
+import { LocalStorageKey } from "@/constant";
 import type { CommandType } from "@/types";
-
-const popupStorageKey = "shortcut-shield-popup-storage";
 
 export enum PopupTab {
    DoNothing = "Do Nothing",
@@ -87,8 +86,8 @@ export function PopupProvider({ children, ...props }: { children: React.ReactNod
    );
 
    useEffect(() => {
-      browser.storage.local.get([popupStorageKey]).then((values) => {
-         const value: PopupStorage | undefined = values[popupStorageKey];
+      browser.storage.local.get([LocalStorageKey.PopupConText]).then((values) => {
+         const value: PopupStorage | undefined = values[LocalStorageKey.PopupConText];
 
          if (value?.tab) setTab(value.tab);
          if (value?.view) setView(value.view);
@@ -105,7 +104,7 @@ export function PopupProvider({ children, ...props }: { children: React.ReactNod
       const unMountHandler = () => {
          browser.storage.local
             .set({
-               [popupStorageKey]: {
+               [LocalStorageKey.PopupConText]: {
                   tab,
                   view,
                   viewProps: {
