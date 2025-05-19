@@ -50,19 +50,19 @@ browser.storage.onChanged.addListener((changes, area) => {
  * Handles keydown events according to extension rules.
  */
 export function handleKeydown(e: KeyboardEvent) {
-   lastKeydownCode = e.code;
    // Delay Enter logic exceptions
    if (e.shiftKey && e.code === "Enter") return;
    else if (lastKeydownCode === "Enter" && e.code === "Enter") return;
+   lastKeydownCode = e.code;
 
    // Delay Enter logic
    const elapsed = Date.now() - lastKeydownTime;
+   lastKeydownTime = Date.now();
    if (extensionRules.isActiveDelayEnter && e.code === "Enter" && elapsed < 500) {
       e.preventDefault();
       e.stopImmediatePropagation();
       return;
    }
-   lastKeydownTime = Date.now();
 
    const modKey = detectModifierKey(e);
    const trigKey = detectTriggerKey(e);
