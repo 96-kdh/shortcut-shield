@@ -1,5 +1,4 @@
 /** @vitest-environment jsdom */
-import {  act } from '@testing-library/react-hooks';
 import { beforeEach, describe, expect, it, vi, afterEach } from 'vitest';
 
 // Mock webextension-polyfill BEFORE any imports
@@ -23,7 +22,7 @@ import type { RawExtensionRules } from "@/components/popup/tabs/TabContents.Exte
 
 describe('Integration: delay enter + content-script', () => {
    const url = 'https://example.com/page';
-   const rawExtensionRules: RawExtensionRules = { isActiveDelayEnter: true };
+   const rawExtensionRules: RawExtensionRules = { isActiveDelayEnter: true, delayTime: 500 };
 
    beforeEach(() => {
       vi.resetModules();
@@ -81,7 +80,7 @@ describe('Integration: delay enter + content-script', () => {
          expect(ev.defaultPrevented).toBe(false);
       }
 
-      vi.advanceTimersByTime(501)
+      vi.advanceTimersByTime(rawExtensionRules.delayTime + 1)
 
       // Dispatch a matching keydown via handler
       const enterEv = new KeyboardEvent('keydown', {

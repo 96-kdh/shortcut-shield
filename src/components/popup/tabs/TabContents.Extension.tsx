@@ -1,39 +1,31 @@
-import React, { useCallback, useEffect, useState } from "react";
-import { Trans, useTranslation } from "react-i18next";
+import { Settings } from "lucide-react";
+import React, { useCallback } from "react";
+import { Trans } from "react-i18next";
 import browser from "webextension-polyfill";
 
 import { Input, Switch } from "@/components/ui";
 import { SyncStorageKey } from "@/constant";
-
-// type ExtensionRuleOf<UrlsType> = {
-//    urls: UrlsType;
-//    isActive: boolean;
-//    scriptDescription?: string;
-// };
-// // export type ExtensionRule = ExtensionRuleOf<Set<string> | "*">;
-// export type ExtensionRule = ExtensionRuleOf<"*">;
-// export type ExtensionRules = Map<string, ExtensionRule>;
-//
-// export const initialExtensionRules: ExtensionRules = new Map().set("Enter", {
-//    urls: "*",
-//    isActive: false,
-//    scriptDescription: "...scriptDescription",
-// });
+import { PopupView } from "@/contexts/popup.provider.tsx";
+import { usePopup } from "@/hooks/contexts/usePopup.ts";
 
 export type RawExtensionRules = {
    isActiveDelayEnter: boolean;
+   delayTime: number;
 };
 
-const TabContentsExtension = () => {
-   const { t } = useTranslation();
-
-   const [rawExtensionRule, setRawExtensionRule] = useState<RawExtensionRules>({
-      isActiveDelayEnter: false,
-   });
+const TabContentsExtension = ({
+   rawExtensionRule,
+   setRawExtensionRule,
+}: {
+   rawExtensionRule: RawExtensionRules;
+   setRawExtensionRule: React.Dispatch<React.SetStateAction<RawExtensionRules>>;
+}) => {
+   const { setCurrentView } = usePopup();
 
    const activeHandler = useCallback(async () => {
       await browser.storage.sync.set({
          [SyncStorageKey.Extension]: {
+            ...rawExtensionRule,
             isActiveDelayEnter: !rawExtensionRule.isActiveDelayEnter,
          },
       });
@@ -42,17 +34,7 @@ const TabContentsExtension = () => {
          ...rawExtensionRule,
          isActiveDelayEnter: !rawExtensionRule.isActiveDelayEnter,
       });
-   }, [rawExtensionRule.isActiveDelayEnter]);
-
-   useEffect(() => {
-      browser.storage.sync
-         .get(SyncStorageKey.Extension)
-         .then((res: { [SyncStorageKey.Extension]?: RawExtensionRules }) => {
-            if (res[SyncStorageKey.Extension]?.isActiveDelayEnter) {
-               setRawExtensionRule(res[SyncStorageKey.Extension]);
-            }
-         });
-   }, []);
+   }, [rawExtensionRule]);
 
    return (
       <div className="space-y-4 flex-1 min-h-80 h-full overflow-y-scroll py-4">
@@ -64,6 +46,7 @@ const TabContentsExtension = () => {
                      <Trans
                         i18nKey="delayEnterDescription"
                         components={[<code key="0" className="font-bold text-sidebar-accent-foreground" />]}
+                        values={{ delayTime: rawExtensionRule.delayTime }}
                      />
                   </p>
                </div>
@@ -74,6 +57,12 @@ const TabContentsExtension = () => {
                      className="cursor-pointer data-[state=checked]:bg-brandColor"
                      onClick={activeHandler}
                   />
+                  <div
+                     className="p-1 cursor-pointer shadow:lg text-accent-foreground hover:text-brandColor"
+                     onClick={() => setCurrentView(PopupView.ExtensionNewCommand)}
+                  >
+                     <Settings className="w-4 h-4" />
+                  </div>
                </div>
             </div>
          </div>

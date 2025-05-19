@@ -10,7 +10,7 @@ import type { CommandType } from "@/types";
 // Internal state
 let doNothingRule = new Map<CommandType, DoNothingRule>();
 let customRules = new Map<CommandType, CustomRule>();
-let extensionRules: RawExtensionRules = { isActiveDelayEnter: false };
+let extensionRules: RawExtensionRules = { isActiveDelayEnter: false, delayTime: 500 };
 
 let lastKeydownTime = 0;
 let lastKeydownCode = "";
@@ -26,9 +26,7 @@ browser.storage.sync
       }) => {
          doNothingRule = rawToDoNothing(res[SyncStorageKey.DoNothing]);
          customRules = rawToCustom(res[SyncStorageKey.Custom]);
-         extensionRules = res[SyncStorageKey.Extension] ?? {
-            isActiveDelayEnter: false,
-         };
+         extensionRules = res[SyncStorageKey.Extension] ?? extensionRules;
       },
    );
 
@@ -58,7 +56,7 @@ export function handleKeydown(e: KeyboardEvent) {
    // Delay Enter logic
    const elapsed = Date.now() - lastKeydownTime;
    lastKeydownTime = Date.now();
-   if (extensionRules.isActiveDelayEnter && e.code === "Enter" && elapsed < 500) {
+   if (extensionRules.isActiveDelayEnter && e.code === "Enter" && elapsed < extensionRules.delayTime) {
       e.preventDefault();
       e.stopImmediatePropagation();
       return;

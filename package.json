@@ -4,7 +4,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build"
+    "build": "tsc && vite build",
+    "test": "npx vitest"
   },
   "dependencies": {
     "@codemirror/lang-javascript": "^6.2.4",

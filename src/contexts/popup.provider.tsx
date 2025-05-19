@@ -13,6 +13,7 @@ export enum PopupView {
    Index = "Index",
    DoNothingNewCommand = "DoNothingNewCommand",
    CustomNewCommand = "CustomNewCommand",
+   ExtensionNewCommand = "ExtensionNewCommand",
 }
 
 interface PopupStorage {
