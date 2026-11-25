@@ -8,6 +8,18 @@ import { sendMsgType } from "@/constant";
 browser.runtime.onMessage.addListener(async (msg, sender) => {
    if (msg.type !== sendMsgType) return;
 
+   // Only accept messages from this extension's own privileged pages (e.g. popup).
+   // Reject other extensions and content scripts (which carry sender.tab and may
+   // run in a compromised page context) before touching the debugger.
+   if (sender?.id !== browser.runtime.id || sender?.tab) {
+      return { status: 403, exceptionDetails: { name: "Unauthorized", description: "Sender is not permitted to execute code" } };
+   }
+
+   // Validate the payload shape/size before it can reach Runtime.evaluate.
+   if (typeof msg.code !== "string" || msg.code.length === 0 || msg.code.length > 100000) {
+      return { status: 400, exceptionDetails: { name: "InvalidPayload", description: "msg.code must be a non-empty string" } };
+   }
+
    let response = {
       status: 200,
       exceptionDetails: {
